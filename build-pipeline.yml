@@ -1,0 +1,33 @@
+trigger:
+  branches:
+    include:
+    - master
+    paths:
+      exclude:
+      - build-pipeline.yml
+      - release-pipeline.yml
+      
+variables:
+  vmImageName: 'ubuntu-latest'
+ 
+jobs:
+- job: Build
+  pool:
+    vmImage: $(vmImageName)
+  steps:
+  - script: |
+      echo 'do some unot test'
+    displayName: 'unit test'
+  - script: |
+      echo 'compile application'
+    displayName: 'compile'
+  - task: ArchiveFiles@2
+    displayName: 'Archive files'
+    inputs:
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+      includeRootFolder: false
+      archiveType: zip
+      archiveFile: $(Build.ArtifactStagingDirectory)
+      replaceExistingArchive: true
+   - upload: $(Build.ArtifactStagingDirectory)/$(Build.Build).zip
+     artifact: drop
